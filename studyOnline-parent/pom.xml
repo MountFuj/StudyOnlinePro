@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>../studyOnline-base</module>
+        <module>../studyOnline-content</module>
     </modules>
 
     <properties>
