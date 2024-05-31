@@ -32,7 +32,7 @@ public class CourseBaseInfoController {
     @PostMapping("/course")
 //    @Validated({ValidatedGroups.Insert.class})  可以指定校验分组
     public CourseBaseInfoDto addCourse(@RequestBody @Validated AddCourseDto addCourseDto){
-        return courseBaseInfoService.createCourse(520L,addCourseDto);
+        return courseBaseInfoService.createCourse(1232141425L,addCourseDto);
     }
 
     @ApiOperation("根据课程id查询课程")
@@ -44,7 +44,7 @@ public class CourseBaseInfoController {
     @ApiOperation("修改课程信息")
     @PutMapping("/course")
     public CourseBaseInfoDto updateCourse(@RequestBody EditCourseDto dto){
-        Long companyId = 520L;
+        Long companyId = 1232141425L;
         return courseBaseInfoService.updateCourse(companyId,dto);
     }
 }
