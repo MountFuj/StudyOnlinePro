@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: content-api
+  cloud:
+    nacos:
+      server-addr: localhost:8848
+      discovery:
+        namespace: dev
+        group: StudyOnline
+      config:
+        namespace: dev
+        group: StudyOnline
+        file-extension: yaml
+        refresh-enabled: true
+        extension-configs:
+          - data-id: content-service-${spring.profiles.active}.yaml
+            group: StudyOnline
+            refresh: true
+  profiles:
+    active: dev

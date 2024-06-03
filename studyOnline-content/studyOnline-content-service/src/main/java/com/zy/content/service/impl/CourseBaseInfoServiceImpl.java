@@ -1,20 +1,17 @@
 package com.zy.content.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zy.base.exception.StudyOnlineException;
 import com.zy.base.model.PageParams;
 import com.zy.base.model.PageResult;
-import com.zy.content.mapper.CourseBaseMapper;
-import com.zy.content.mapper.CourseCategoryMapper;
-import com.zy.content.mapper.CourseMarketMapper;
+import com.zy.content.mapper.*;
 import com.zy.content.model.dto.AddCourseDto;
 import com.zy.content.model.dto.CourseBaseInfoDto;
 import com.zy.content.model.dto.EditCourseDto;
 import com.zy.content.model.dto.QueryCourseParamsDto;
-import com.zy.content.model.po.CourseBase;
-import com.zy.content.model.po.CourseCategory;
-import com.zy.content.model.po.CourseMarket;
+import com.zy.content.model.po.*;
 import com.zy.content.service.CourseBaseInfoService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -24,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
@@ -36,6 +34,15 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
 
     @Autowired
     CourseCategoryMapper courseCategoryMapper;
+
+    @Autowired
+    TeachplanMapper teachplanMapper;
+
+    @Autowired
+    TeachplanMediaMapper teachplanMediaMapper;
+
+    @Autowired
+    CourseTeacherMapper courseTeacherMapper;
 
     @Override
     public PageResult<CourseBase> queryCourseBaseList(PageParams pageParams, QueryCourseParamsDto queryCourseParamsDto) {
@@ -170,6 +177,40 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
         saveCourseMarket(courseMarket);
         //查询课程信息
         return this.getCourseBaseInfo(courseId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCourse(Long courseId) {
+        // 删除课程下营销信息 师资信息 课程计划信息 以及课程计划对应的媒资信息
+        CourseBase courseBase = courseBaseMapper.selectById(courseId);
+        if(courseBase == null){
+            StudyOnlineException.cast("课程不存在");
+        }
+        if (!courseBase.getAuditStatus().equals("202002")) {
+            StudyOnlineException.cast("课程状态不是未提交审核状态，不能删除");
+        }
+        CourseMarket courseMarket = courseMarketMapper.selectById(courseId);
+        // 营销信息
+        if(courseMarket != null){
+            courseMarketMapper.deleteById(courseMarket);
+        }
+        // 课程计划
+        List<Teachplan> teachplanList = teachplanMapper.selectList(new QueryWrapper<Teachplan>().eq("course_id", courseId));
+        // 循环遍历课程计划，删除绑定的媒资和计划
+        for(Teachplan teachplan : teachplanList){
+            TeachplanMedia teachplanMedia = teachplanMediaMapper.selectOne(new QueryWrapper<TeachplanMedia>()
+                    .eq("teachplan_id", teachplan.getId())
+                    .eq("course_id", teachplan.getCourseId()));
+            teachplanMediaMapper.deleteById(teachplanMedia);
+            teachplanMapper.deleteById(teachplan);
+        }
+        // 师资信息
+        List<CourseTeacher> teacherList = courseTeacherMapper.selectList(new QueryWrapper<CourseTeacher>()
+                .eq("course_id", courseId));
+        courseTeacherMapper.deleteBatchIds(teacherList.stream().map(CourseTeacher::getId).collect(Collectors.toList()));
+        // 课程本身
+        courseBaseMapper.deleteById(courseBase);
     }
 
     public int saveCourseMarket(CourseMarket courseMarketNew){

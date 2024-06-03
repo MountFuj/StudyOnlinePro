@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: system-api
+  cloud:
+    nacos:
+      server-addr: localhost:8848
+      discovery:
+        namespace: dev
+        group: StudyOnline

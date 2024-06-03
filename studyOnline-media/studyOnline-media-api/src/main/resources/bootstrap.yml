@@ -1,0 +1,20 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        namespace: dev
+        group: StudyOnline
+      config:
+        namespace: dev
+        group: StudyOnline
+        file-extension: yaml
+        refresh-enabled: true
+        extension-configs:
+          - data-id: media-service-${spring.profiles.active}.yaml
+            group: StudyOnline
+            refresh: true
+  profiles:
+    active: dev
+  application:
+    name: media-api
