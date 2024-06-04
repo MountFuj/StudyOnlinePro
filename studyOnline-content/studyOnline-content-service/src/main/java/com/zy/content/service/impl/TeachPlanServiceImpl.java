@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zy.base.exception.StudyOnlineException;
 import com.zy.content.mapper.TeachplanMapper;
 import com.zy.content.mapper.TeachplanMediaMapper;
+import com.zy.content.model.dto.BindTeachPlanDto;
 import com.zy.content.model.dto.SaveTeachPlanDto;
 import com.zy.content.model.dto.TeachPlanDto;
 import com.zy.content.model.po.Teachplan;
@@ -14,7 +15,9 @@ import com.zy.content.service.TeachPlanService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,8 +46,8 @@ public class TeachPlanServiceImpl extends ServiceImpl<TeachplanMapper, Teachplan
             TeachPlanDto oneDto = new TeachPlanDto();
             BeanUtils.copyProperties(one,oneDto);
             // 取资源
-            TeachplanMedia teachplanMedia = teachplanMediaMapper.selectOne(new QueryWrapper<TeachplanMedia>().eq("teachplan_id", one.getId()));
-            if(teachplanMedia!=null)  BeanUtils.copyProperties(teachplanMedia,oneDto);
+            TeachplanMedia teachplanMedia = teachplanMediaMapper.selectOne(new LambdaQueryWrapper<TeachplanMedia>().eq(TeachplanMedia::getTeachplanId,one.getId()));
+            if(teachplanMedia!=null)  oneDto.setTeachplanMedia(teachplanMedia);
             // 拿到二级目录
             LambdaQueryWrapper<Teachplan> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(Teachplan::getParentid,one.getId());
@@ -56,8 +59,8 @@ public class TeachPlanServiceImpl extends ServiceImpl<TeachplanMapper, Teachplan
                 TeachPlanDto twoDto = new TeachPlanDto();
                 BeanUtils.copyProperties(two,twoDto);
                 // 取资源
-                TeachplanMedia media = teachplanMediaMapper.selectOne(new QueryWrapper<TeachplanMedia>().eq("teachplan_id", two.getId()));
-                if(media!=null)  BeanUtils.copyProperties(media,twoDto);
+                TeachplanMedia media = teachplanMediaMapper.selectOne(new LambdaQueryWrapper<TeachplanMedia>().eq(TeachplanMedia::getTeachplanId,two.getId()));
+                if(media!=null)  twoDto.setTeachplanMedia(media);
                 twoDtoList.add(twoDto);
             }
             oneDto.setTeachPlanTreeNodes(twoDtoList);
@@ -143,6 +146,44 @@ public class TeachPlanServiceImpl extends ServiceImpl<TeachplanMapper, Teachplan
             // 更新数据库
             teachplanMapper.updateById(teachplan);
             teachplanMapper.updateById(selectedOne);
+        }
+    }
+
+    @Transactional
+    @Override
+    public TeachplanMedia associationMedia(BindTeachPlanDto dto) {
+        // 教学计划id
+        Long teachplanId = dto.getTeachplanId();
+        Teachplan teachplan = teachplanMapper.selectById(teachplanId);
+        if(teachplan == null){
+            StudyOnlineException.cast("教学计划不存在");
+        }
+        if(teachplan.getGrade()!=2){
+            StudyOnlineException.cast("只允许二级教学计划绑定媒资");
+        }
+        // 课程id
+        Long courseId = teachplan.getCourseId();
+        // 删除之前绑定的媒资
+        teachplanMediaMapper.delete(new LambdaQueryWrapper<TeachplanMedia>()
+                .eq(TeachplanMedia::getTeachplanId,teachplanId));
+        // 重新绑定
+        TeachplanMedia teachplanMedia = new TeachplanMedia();
+        teachplanMedia.setCourseId(courseId);
+        teachplanMedia.setTeachplanId(teachplanId);
+        teachplanMedia.setMediaFilename(dto.getFileName());
+        teachplanMedia.setMediaId(dto.getMediaId());
+        teachplanMedia.setCreateDate(LocalDateTime.now());
+        teachplanMediaMapper.insert(teachplanMedia);
+        return teachplanMedia;
+    }
+
+    @Override
+    public void deleteAssociationMedia(Long teachplanId, String mediaId) {
+        TeachplanMedia teachplanMedia = teachplanMediaMapper.selectOne(new LambdaQueryWrapper<TeachplanMedia>()
+                .eq(TeachplanMedia::getTeachplanId, teachplanId)
+                .eq(TeachplanMedia::getMediaId, mediaId));
+        if(teachplanMedia!=null){
+            teachplanMediaMapper.deleteById(teachplanMedia);
         }
     }
 }

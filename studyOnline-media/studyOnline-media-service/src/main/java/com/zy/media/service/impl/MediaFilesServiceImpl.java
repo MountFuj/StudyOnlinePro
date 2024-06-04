@@ -13,7 +13,9 @@ import com.zy.media.dto.QueryMediaDto;
 import com.zy.media.dto.UploadFileParamDto;
 import com.zy.media.dto.UploadFileResultDto;
 import com.zy.media.mapper.MediaFilesMapper;
+import com.zy.media.mapper.MediaProcessMapper;
 import com.zy.media.po.MediaFiles;
+import com.zy.media.po.MediaProcess;
 import com.zy.media.service.MediaFilesService;
 import io.minio.*;
 import io.minio.errors.*;
@@ -56,6 +58,9 @@ public class MediaFilesServiceImpl extends ServiceImpl<MediaFilesMapper, MediaFi
 
     @Autowired
     MediaFilesMapper mediaFilesMapper;
+
+    @Autowired
+    MediaProcessMapper mediaProcessMapper;
 
     @Autowired
     MediaFilesService proxy;
@@ -171,9 +176,28 @@ public class MediaFilesServiceImpl extends ServiceImpl<MediaFilesMapper, MediaFi
                 log.error("保存文件信息到数据库失败,{}",mediaFiles);
                 StudyOnlineException.cast("保存文件信息失败");
             }
+            // 添加到待处理任务表
+            addAwaitingTask(mediaFiles);
             log.debug("保存文件信息到数据库成功，{}",mediaFiles);
         }
         return mediaFiles;
+    }
+
+    private void addAwaitingTask(MediaFiles mediaFiles) {
+        // 文件名称
+        String filename = mediaFiles.getFilename();
+        // 拓展名
+        String extension = filename.substring(filename.lastIndexOf("."));
+        // 文件mimeType
+        String mimeType = getMimeType(extension);
+        // avi视频加入待处理任务表
+        if(mimeType.equals("video/x-msvideo")){
+            MediaProcess mediaProcess = new MediaProcess();
+            BeanUtils.copyProperties(mediaFiles,mediaProcess);
+            mediaProcess.setStatus("1"); // 未处理
+            mediaProcess.setFailCount(0); //失败次数默认为0
+            mediaProcessMapper.insert(mediaProcess);
+        }
     }
 
     @Override

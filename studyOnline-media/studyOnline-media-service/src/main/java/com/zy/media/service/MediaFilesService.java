@@ -10,6 +10,8 @@ import com.zy.media.dto.UploadFileParamDto;
 import com.zy.media.dto.UploadFileResultDto;
 import com.zy.media.po.MediaFiles;
 
+import java.io.File;
+
 /**
  * <p>
  * 媒资信息 服务类
@@ -32,4 +34,8 @@ public interface MediaFilesService extends IService<MediaFiles> {
     public RestResponse uploadChunk(String fileMd5,int chunk,String localChunkFilePath);
 
     public RestResponse mergechunks(Long companyId,String fileMd5,int chunkTotal,UploadFileParamDto dto);
+
+    public File downloadFileFromMinio(String videoFiles, String merageFilePath);
+
+    public boolean addMediaFilesToMinio(String localFilePath,String mimeType,String bucket,String objectName);
 }

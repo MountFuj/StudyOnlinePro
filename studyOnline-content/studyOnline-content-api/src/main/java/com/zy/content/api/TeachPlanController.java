@@ -1,5 +1,6 @@
 package com.zy.content.api;
 
+import com.zy.content.model.dto.BindTeachPlanDto;
 import com.zy.content.model.dto.SaveTeachPlanDto;
 import com.zy.content.model.dto.TeachPlanDto;
 import com.zy.content.service.TeachPlanService;
@@ -36,5 +37,16 @@ public class TeachPlanController {
     @PostMapping("/teachplan/{moveType}/{teachplanId}")
     public void move(@PathVariable String moveType,@PathVariable Long teachplanId){
         teachPlanService.move(moveType,teachplanId);
+    }
+
+    @ApiOperation(value = "课程计划和媒资信息绑定")
+    @PostMapping("/teachplan/association/media")
+    public void associationMedia(@RequestBody BindTeachPlanDto dto){
+        teachPlanService.associationMedia(dto);
+    }
+
+    @DeleteMapping("/teachplan/association/media/{teachplanId}/{mediaId}")
+    public void deleteAssociationMedia(@PathVariable Long teachplanId,@PathVariable String mediaId){
+        teachPlanService.deleteAssociationMedia(teachplanId,mediaId);
     }
 }
