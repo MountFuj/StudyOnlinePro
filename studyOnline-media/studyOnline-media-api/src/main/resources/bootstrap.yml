@@ -9,7 +9,6 @@ spring:
         namespace: dev
         group: StudyOnline
         file-extension: yaml
-        refresh-enabled: true
         extension-configs:
           - data-id: media-service-${spring.profiles.active}.yaml
             group: StudyOnline
@@ -18,3 +17,7 @@ spring:
     active: dev
   application:
     name: media-api
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
