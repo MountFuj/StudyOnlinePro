@@ -16,5 +16,9 @@ spring:
           - data-id: content-service-${spring.profiles.active}.yaml
             group: StudyOnline
             refresh: true
+        shared-configs:
+          - data-id: freemarker-config-${spring.profiles.active}.yaml
+            group: StudyOnline
+            refresh: true
   profiles:
     active: dev
