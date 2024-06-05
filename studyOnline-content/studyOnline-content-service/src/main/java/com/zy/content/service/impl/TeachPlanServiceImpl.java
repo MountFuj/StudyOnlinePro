@@ -94,6 +94,9 @@ public class TeachPlanServiceImpl extends ServiceImpl<TeachplanMapper, Teachplan
     @Override
     public void deleteTeachPlan(Long teachplanId) {
         Teachplan teachplan = teachplanMapper.selectById(teachplanId);
+        Long parentid = teachplan.getParentid();
+        Integer orderby = teachplan.getOrderby();
+        Long courseId = teachplan.getCourseId();
         LambdaQueryWrapper<Teachplan> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Teachplan::getParentid,teachplan.getId());
         List<Teachplan> teachplanList = teachplanMapper.selectList(queryWrapper);
@@ -107,6 +110,17 @@ public class TeachPlanServiceImpl extends ServiceImpl<TeachplanMapper, Teachplan
             teachplanMediaMapper.deleteById(teachplanMedia);
         }
         teachplanMapper.deleteById(teachplan);
+        // 如果该章节是排序第一的，则要更改排序规则
+        if(orderby == 1){
+            LambdaQueryWrapper<Teachplan> wrapper = new LambdaQueryWrapper<Teachplan>().eq(Teachplan::getParentid, parentid).eq(Teachplan::getCourseId,courseId);
+            List<Teachplan> selectList = teachplanMapper.selectList(wrapper);
+            if(!selectList.isEmpty()){
+                selectList.forEach(t->{
+                    t.setOrderby(t.getOrderby()-1);
+                    teachplanMapper.updateById(t);
+                });
+            }
+        }
     }
 
     @Override
