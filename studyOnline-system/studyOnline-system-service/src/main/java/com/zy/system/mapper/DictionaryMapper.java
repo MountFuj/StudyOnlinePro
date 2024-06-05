@@ -1,7 +1,7 @@
-package com.xuecheng.system.mapper;
+package com.zy.system.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.xuecheng.system.model.po.Dictionary;
+import com.zy.system.model.po.Dictionary;
 
 /**
  * <p>
