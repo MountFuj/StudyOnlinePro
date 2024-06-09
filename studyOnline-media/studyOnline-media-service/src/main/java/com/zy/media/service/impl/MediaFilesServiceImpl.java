@@ -73,7 +73,7 @@ public class MediaFilesServiceImpl extends ServiceImpl<MediaFilesMapper, MediaFi
 
     @Override
     @Transactional
-    public UploadFileResultDto upload(Long companyId, UploadFileParamDto dto, String localFilepath) {
+    public UploadFileResultDto upload(Long companyId, UploadFileParamDto dto, String localFilepath,String objectName) {
         File file = new File(localFilepath);
         if(!file.exists()){
             StudyOnlineException.cast("文件不存在");
@@ -89,7 +89,9 @@ public class MediaFilesServiceImpl extends ServiceImpl<MediaFilesMapper, MediaFi
         // 文件默认目录
         String defaultFolderPath = getDefaultFolderPath();
         // objectName
-        String objectName = defaultFolderPath+fileMd5+extension;
+        if(StringUtils.isEmpty(objectName)){
+            objectName = defaultFolderPath+fileMd5+extension;
+        }
         // 将文件上传到Minio
         boolean b = addMediaFilesToMinio(localFilepath, mimeType, bucket_files, objectName);
         // 文件大小

@@ -21,7 +21,7 @@ import java.io.File;
  * @since 2024-06-03
  */
 public interface MediaFilesService extends IService<MediaFiles> {
-    public UploadFileResultDto upload(Long companyId, UploadFileParamDto dto,String localFilepath);
+    public UploadFileResultDto upload(Long companyId, UploadFileParamDto dto,String localFilepath,String objectName);
 
     public MediaFiles addMediaFilesToDb(Long companyId,String fileMd5,UploadFileParamDto uploadFileParamDto,String bucket,String objectName);
 

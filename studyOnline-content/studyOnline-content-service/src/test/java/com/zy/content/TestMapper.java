@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zy.base.model.PageParams;
 import com.zy.base.model.PageResult;
+import com.zy.content.config.MultipartSupportConfig;
+import com.zy.content.feignclient.MediaClient;
 import com.zy.content.mapper.CourseBaseMapper;
 import com.zy.content.model.dto.QueryCourseParamsDto;
 import com.zy.content.model.po.CourseBase;
@@ -12,7 +14,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.List;
 
 @SpringBootTest
@@ -59,5 +63,14 @@ public class TestMapper {
         //准备返回数据 List<T> items, long counts, long page, long pageSize
         PageResult<CourseBase> courseBasePageResult = new PageResult<>(items, total, pageParams.getPageNo(), pageParams.getPageSize());
         System.out.println(courseBasePageResult);
+    }
+
+    @Autowired
+    MediaClient mediaClient;
+
+    @Test
+    public void test(){
+        MultipartFile multipartFile = MultipartSupportConfig.getMultipartFile(new File("D:\\Nacos.html"));
+        mediaClient.upload(multipartFile,"/course/test.html");
     }
 }

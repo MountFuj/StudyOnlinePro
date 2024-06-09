@@ -22,7 +22,7 @@ public class MediaFilesController {
     MediaFilesService mediaFilesService;
 
     @RequestMapping(value = "/upload/coursefile",consumes = MediaType.MULTIPART_FORM_DATA)
-    public UploadFileResultDto upload(@RequestPart("filedata")MultipartFile filedata) throws IOException{
+    public UploadFileResultDto upload(@RequestPart("filedata")MultipartFile filedata,@RequestParam(value = "objectName",required = true)String objectName) throws IOException{
         Long companyId = 1232141425L;
         UploadFileParamDto dto = new UploadFileParamDto();
         dto.setFilename(filedata.getOriginalFilename());
@@ -35,7 +35,7 @@ public class MediaFilesController {
         // 文件路径
         String absolutePath = tempFile.getAbsolutePath();
         // 上传文件
-        return mediaFilesService.upload(companyId, dto, absolutePath);
+        return mediaFilesService.upload(companyId, dto, absolutePath,objectName);
     }
 
     @PostMapping("/files")

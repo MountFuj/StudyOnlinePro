@@ -1,15 +1,14 @@
-package com.zy.content.mapper;
+package com.zy.messagesdk.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.zy.content.model.po.MqMessageHistory;
-
+import com.zy.messagesdk.model.po.MqMessageHistory;
 
 /**
  * <p>
  *  Mapper 接口
  * </p>
  *
- * @author zhangYu
+ * @author itcast
  */
 public interface MqMessageHistoryMapper extends BaseMapper<MqMessageHistory> {
 
