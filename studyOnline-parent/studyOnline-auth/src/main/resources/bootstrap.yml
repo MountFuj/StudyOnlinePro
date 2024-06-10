@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: auth-service
+  cloud:
+    nacos:
+      server-addr: localhost:8848
+      discovery:
+        namespace: dev
+        group: StudyOnline
+      config:
+        namespace: dev
+        group: StudyOnline
+        file-extension: yaml
+        refresh-enabled: true
+
+  profiles:
+    active: dev

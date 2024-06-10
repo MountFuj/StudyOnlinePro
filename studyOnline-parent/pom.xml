@@ -14,6 +14,7 @@
         <module>../studyOnline-media</module>
         <module>studyOnline-message-sdk</module>
         <module>studyOnline-search</module>
+        <module>studyOnline-auth</module>
     </modules>
 
     <properties>
