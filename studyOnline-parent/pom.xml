@@ -15,6 +15,7 @@
         <module>studyOnline-message-sdk</module>
         <module>studyOnline-search</module>
         <module>studyOnline-auth</module>
+        <module>studyOnline-checkcode</module>
     </modules>
 
     <properties>

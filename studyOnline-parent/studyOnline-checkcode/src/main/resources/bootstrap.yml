@@ -1,9 +1,9 @@
 spring:
   application:
-    name: auth-service
+    name: checkcode
   cloud:
     nacos:
-      server-addr: 127.0.0.1:8848
+      server-addr: localhost:8848
       discovery:
         namespace: dev
         group: StudyOnline
@@ -13,7 +13,7 @@ spring:
         file-extension: yaml
         refresh-enabled: true
         shared-configs:
-          - data-id: feign-${spring.profiles.active}.yaml
+          - data-id: redis-${spring.profiles.active}.yaml
             group: StudyOnline
             refresh: true
 

@@ -9,9 +9,12 @@ import com.zy.content.model.dto.EditCourseDto;
 import com.zy.content.model.dto.QueryCourseParamsDto;
 import com.zy.content.model.po.CourseBase;
 import com.zy.content.service.CourseBaseInfoService;
+import com.zy.content.util.SecurityUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,8 +27,11 @@ public class CourseBaseInfoController {
 
     @ApiOperation("课程查询接口")
     @PostMapping("/course/list")
+    @PreAuthorize("hasAnyAuthority('xc_teachmanager_course_list')")
     public PageResult<CourseBase> list(PageParams pageParams, @RequestBody(required = false) QueryCourseParamsDto dto){
-        return courseBaseInfoService.queryCourseBaseList(pageParams,dto);
+        SecurityUtil.XcUser xcUser = SecurityUtil.getUser();
+        String companyId = xcUser.getCompanyId();
+        return courseBaseInfoService.queryCourseBaseList(Long.parseLong(companyId),pageParams,dto);
     }
 
     @ApiOperation("课程添加接口")
@@ -38,6 +44,8 @@ public class CourseBaseInfoController {
     @ApiOperation("根据课程id查询课程")
     @GetMapping("/course/{id}")
     public CourseBaseInfoDto getCourseById(@PathVariable Long id){
+        SecurityUtil.XcUser user = SecurityUtil.getUser();
+        System.out.println(user);
         return courseBaseInfoService.getCourseById(id);
     }
 
